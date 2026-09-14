@@ -1,19 +1,103 @@
 let timer = null;
+let wearUnsubscribe = null;
 let paired = false;
 
-export function startSensorBridge({ onPaired, onSample }) {
+function normalizePayload(message) {
+  if (!message) return null;
+  if (typeof message === 'string') {
+    try { return JSON.parse(message); } catch { return null; }
+  }
+  if (typeof message === 'object') {
+    if (typeof message.message === 'string') {
+      try { return JSON.parse(message.message); } catch { return message; }
+    }
+    return message;
+  }
+  return null;
+}
+
+function emitSamples(payload, onSample) {
+  if (!payload) return;
+
+  if (payload.type === 'swing_samples' && Array.isArray(payload.samples)) {
+    payload.samples.forEach(sample => {
+      if (
+        Number.isFinite(Number(sample.ax)) &&
+        Number.isFinite(Number(sample.ay)) &&
+        Number.isFinite(Number(sample.az)) &&
+        Number.isFinite(Number(sample.gx)) &&
+        Number.isFinite(Number(sample.gy)) &&
+        Number.isFinite(Number(sample.gz))
+      ) {
+        onSample?.({
+          ax: Number(sample.ax), ay: Number(sample.ay), az: Number(sample.az),
+          gx: Number(sample.gx), gy: Number(sample.gy), gz: Number(sample.gz),
+          timestamp: Number(sample.timestamp) || Date.now()
+        });
+      }
+    });
+    return;
+  }
+
+  if (payload.type === 'swing_sample') {
+    onSample?.({
+      ax: Number(payload.ax) || 0,
+      ay: Number(payload.ay) || 0,
+      az: Number(payload.az) || 0,
+      gx: Number(payload.gx) || 0,
+      gy: Number(payload.gy) || 0,
+      gz: Number(payload.gz) || 0,
+      timestamp: Number(payload.timestamp) || Date.now()
+    });
+  }
+}
+
+export function startSensorBridge({ onPaired, onSample, onStatus }) {
   paired = false;
   onPaired?.(false);
+  onStatus?.('WAITING_FOR_WATCH');
+
+  try {
+    const { watchEvents } = require('react-native-wear-connectivity');
+    wearUnsubscribe = watchEvents.on('message', message => {
+      const payload = normalizePayload(message);
+      if (!payload) return;
+
+      if (!paired) {
+        paired = true;
+        onPaired?.(true);
+      }
+
+      if (payload.type === 'watch_hello') {
+        onStatus?.('WATCH_CONNECTED');
+        return;
+      }
+
+      if (payload.type === 'watch_status') {
+        onStatus?.(payload.status || 'WATCH_CONNECTED');
+        return;
+      }
+
+      emitSamples(payload, onSample);
+    });
+    onStatus?.('BRIDGE_READY');
+  } catch (error) {
+    onStatus?.('NATIVE_BRIDGE_UNAVAILABLE');
+  }
 
   return () => {
     if (timer) clearInterval(timer);
     timer = null;
+    if (wearUnsubscribe) wearUnsubscribe();
+    wearUnsubscribe = null;
   };
 }
 
 export function stopSensorBridge() {
   if (timer) clearInterval(timer);
   timer = null;
+  if (wearUnsubscribe) wearUnsubscribe();
+  wearUnsubscribe = null;
 }
 
 export function startDemoSwing({ onPaired, onSample }) {
@@ -40,12 +124,16 @@ export function startDemoSwing({ onPaired, onSample }) {
       timer = null;
       return;
     }
-
     onSample?.({ ...sequence[index], timestamp: Date.now() });
     index += 1;
   }, 50);
 }
 
 export function isNativeWearBridgeReady() {
-  return false;
+  try {
+    require('react-native-wear-connectivity');
+    return true;
+  } catch {
+    return false;
+  }
 }
