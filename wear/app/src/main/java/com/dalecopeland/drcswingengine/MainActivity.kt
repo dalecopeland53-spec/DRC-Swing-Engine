@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Text
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import org.json.JSONArray
@@ -132,12 +132,12 @@ class MainActivity : ComponentActivity(), SensorEventListener {
         if (batch.isEmpty()) return
         val node = targetNode ?: return
         val samplesJson = JSONArray()
-        batch.forEach { s ->
+        batch.forEach { sample ->
             samplesJson.put(
                 JSONObject()
-                    .put("ax", s.ax).put("ay", s.ay).put("az", s.az)
-                    .put("gx", s.gx).put("gy", s.gy).put("gz", s.gz)
-                    .put("timestamp", s.timestamp)
+                    .put("ax", sample.ax).put("ay", sample.ay).put("az", sample.az)
+                    .put("gx", sample.gx).put("gy", sample.gy).put("gz", sample.gz)
+                    .put("timestamp", sample.timestamp)
             )
         }
         val payload = JSONObject()
@@ -148,7 +148,6 @@ class MainActivity : ComponentActivity(), SensorEventListener {
     }
 
     private fun sendJson(payload: JSONObject, node: Node) {
-        // react-native-wear-connectivity reads the JSON payload from MessageClient.path.
         Wearable.getMessageClient(this).sendMessage(node.id, payload.toString(), null)
             .addOnFailureListener {
                 linkText = "Link interrupted"
