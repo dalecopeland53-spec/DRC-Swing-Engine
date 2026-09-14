@@ -2,14 +2,24 @@
   "expo": {
     "name": "DRC Swing Engine",
     "slug": "drc-swing-engine",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "plugins": [
+      "./plugins/withWearConnectivity"
+    ],
     "android": {
       "package": "com.dalecopeland.drcswingengine",
-      "versionCode": 1,
+      "versionCode": 2,
       "permissions": [
-        "VIBRATE"
+        "VIBRATE",
+        "WAKE_LOCK",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_DATA_SYNC",
+        "FOREGROUND_SERVICE_CONNECTED_DEVICE",
+        "BLUETOOTH_CONNECT",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_ADVERTISE"
       ]
     }
   }
