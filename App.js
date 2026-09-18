@@ -43,7 +43,13 @@ export default function App() {
       saveSwing(record);
       setLastSwing(result.metrics);
       setLiveG(result.metrics.peakLinearG);
-      Vibration.vibrate(result.metrics.verdict === 'ON TEMPO' ? 80 : [0, 60, 70, 60]);
+      
+      // Precision Haptic Verification Signals
+      if (result.metrics.verdict === 'ON TEMPO') {
+        Vibration.vibrate(80); // Crisp single confirmation pulse
+      } else {
+        Vibration.vibrate([0, 60, 70, 60]); // Distinct corrective double pulse
+      }
       refresh();
     }
   };
@@ -201,39 +207,21 @@ const s = StyleSheet.create({
   statusDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.muted },
   statusDotOn: { backgroundColor: C.green },
   statusText: { color: C.champagne, fontSize: 9, fontWeight: '900' },
-  hero: { backgroundColor: C.panel, borderRadius: radius.lg, padding: 22, borderWidth: 1, borderColor: C.line, marginBottom: 18 },
-  heroLabel: { color: C.gold, fontSize: 10, fontWeight: '900', letterSpacing: 1.5, textAlign: 'center' },
-  heroState: { color: C.text, fontSize: 42, fontWeight: '900', textAlign: 'center', marginTop: 6 },
-  heroHint: { color: C.blue2, fontSize: 13, textAlign: 'center', marginTop: 2 },
-  liveRow: { flexDirection: 'row', gap: 8, marginTop: 18 },
-  metric: { flex: 1, backgroundColor: C.bg2, borderRadius: radius.md, padding: 12, borderWidth: 1, borderColor: C.line, alignItems: 'center' },
-  metricValue: { color: C.champagne2, fontSize: 19, fontWeight: '900' },
-  metricLabel: { color: C.muted, fontSize: 9, fontWeight: '800', marginTop: 4, letterSpacing: 1 },
-  section: { color: C.champagne, fontSize: 11, fontWeight: '900', letterSpacing: 1.5, marginTop: 7, marginBottom: 9 },
-  clubRow: { paddingBottom: 6 },
-  clubChip: { backgroundColor: C.bg2, borderWidth: 1, borderColor: C.line, paddingHorizontal: 15, paddingVertical: 9, borderRadius: 99, marginRight: 8 },
-  clubChipOn: { backgroundColor: C.champagne, borderColor: C.champagne },
-  clubText: { color: C.champagne, fontSize: 12, fontWeight: '800' },
-  clubTextOn: { color: C.black },
-  actionCard: { marginTop: 13, backgroundColor: C.panel, borderRadius: radius.lg, padding: 17, borderWidth: 1, borderColor: C.line },
-  actionTitle: { color: C.text, fontSize: 16, fontWeight: '900' },
-  actionCopy: { color: C.muted, fontSize: 12, lineHeight: 18, marginTop: 6 },
-  primaryBtn: { backgroundColor: C.gold, paddingVertical: 14, borderRadius: radius.md, alignItems: 'center', marginTop: 14 },
-  primaryBtnText: { color: C.black, fontSize: 12, fontWeight: '900', letterSpacing: .6 },
-  lastCard: { backgroundColor: C.panel, borderRadius: radius.lg, padding: 18, borderWidth: 1, borderColor: C.line },
-  lastTempo: { color: C.text, fontSize: 44, fontWeight: '900', textAlign: 'center' },
-  verdict: { color: C.gold, textAlign: 'center', fontSize: 12, fontWeight: '900', marginTop: 2 },
-  verdictGood: { color: C.green },
-  empty: { color: C.muted, fontSize: 13, textAlign: 'center', paddingVertical: 14 },
-  summaryGrid: { flexDirection: 'row', gap: 8 },
-  statBox: { flex: 1, backgroundColor: C.panel2, borderRadius: radius.md, padding: 14, borderWidth: 1, borderColor: C.line, alignItems: 'center' },
-  statValue: { color: C.text, fontSize: 20, fontWeight: '900' },
-  statLabel: { color: C.muted, fontSize: 9, fontWeight: '900', letterSpacing: .8, marginTop: 3 },
-  historyCard: { backgroundColor: C.panel, borderRadius: radius.lg, paddingHorizontal: 14, borderWidth: 1, borderColor: C.line },
-  historyRow: { minHeight: 58, flexDirection: 'row', alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.line, gap: 10 },
-  historyClub: { color: C.champagne2, fontSize: 13, fontWeight: '900', width: 76 },
-  historyTime: { color: C.muted, fontSize: 9, marginTop: 2 },
-  historyTempo: { flex: 1, color: C.text, fontSize: 18, fontWeight: '900', textAlign: 'center' },
-  historyVerdict: { width: 110, color: C.gold, fontSize: 9, fontWeight: '900', textAlign: 'right' },
-  footer: { color: C.muted, fontSize: 9, textAlign: 'center', marginTop: 24, opacity: .8 }
-});
+  hero: { backgroundColor: C.panel, borderRadius: radius.lg, padding: 22, borderWidth: 1, borderColor: C.line, alignItems: 'center', marginVertical: 10 },
+  heroLabel: { color: C.gold, fontSize: 10, fontWeight: '800', letterSpacing: 1 },
+  heroState: { color: C.text, fontSize: 36, fontWeight: '950', marginVertical: 6 },
+  heroHint: { color: C.muted, fontSize: 14, marginBottom: 16, fontWeight: '600' },
+  liveRow: { flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 10 },
+  metric: { alignItems: 'center', minWidth: 80 },
+  metricValue: { color: C.text, fontSize: 20, fontWeight: '800' },
+  metricLabel: { color: C.muted, fontSize: 10, fontWeight: '700', marginTop: 2, letterSpacing: 0.5 },
+  section: { color: C.gold, fontSize: 12, fontWeight: '900', letterSpacing: 1.2, marginTop: 20, marginBottom: 10 },
+  clubRow: { paddingVertical: 4 },
+  clubChip: { backgroundColor: C.panel, borderRadius: radius.sm, paddingHorizontal: 16, paddingVertical: 10, marginRight: 8, borderWidth: 1, borderColor: C.line },
+  clubChipOn: { backgroundColor: C.gold, borderColor: C.gold },
+  clubText: { color: C.text, fontSize: 13, fontWeight: '700' },
+  clubTextOn: { color: C.bg, fontWeight: '900' },
+  actionCard: { backgroundColor: C.panel, borderRadius: radius.md, padding: 16, marginVertical: 14, borderWidth: 1, borderColor: C.line },
+  actionTitle: { color: C.text, fontSize: 15, fontWeight: '800' },
+  actionCopy: { color: C.muted, fontSize: 12, marginVertical: 8, lineHeight: 16 },
+  primaryBtn: { backgroundColor: C.text, borderRadius: radius.sm, paddingVertical: 12, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
